@@ -8,7 +8,7 @@
 
 int main(void) {
   // プレイヤーの入力保持
-  char input[10] = { '\0' };
+  char input[10] = {'\0'};
   // プレイヤーの解答
   int player_answer;
   // ゲームの正解
