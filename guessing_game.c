@@ -20,6 +20,7 @@ int main(void) {
   srand((unsigned) time(NULL));
   correct_answer = rand() % ANSWER_MAX + ANSWER_MIN;
 
+  printf("数当てゲームです。\n");
   do {
     // プレイヤー入力
     printf("1から100までの数字を入力してください：");
