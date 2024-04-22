@@ -24,19 +24,21 @@ int AtoiWithinRange(char str[]) {
 }
 
 // 答えの入力を求める
-void AnswerByPlayer(int* player_answer) {
+int AnswerByPlayer() {
   char answer_input[10] = {'\0'};
+  int player_answer;
   while (1) {
     printf("%dから%dまでの数字を入力してください：", ANSWER_MIN, ANSWER_MAX);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%9s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
-    *player_answer = AtoiWithinRange(answer_input);
-    if ((*player_answer >= ANSWER_MIN) && (*player_answer <= ANSWER_MAX)) {
+    player_answer = AtoiWithinRange(answer_input);
+    if ((player_answer >= ANSWER_MIN) && (player_answer <= ANSWER_MAX)) {
       break;
     }
     printf("\a【注意】%d以上%d以下の数字を入力してください。\n\n", ANSWER_MIN, ANSWER_MAX);
   }
+  return player_answer;
 }
 
 // 答えを生成する
@@ -59,7 +61,7 @@ int main(void) {
   printf("数当てゲームです。\n");
   while (1) {
     // プレイヤー入力
-    AnswerByPlayer(&player_answer);
+    player_answer = AnswerByPlayer();
     answer_count++;
 
     // 正誤判定・表示
