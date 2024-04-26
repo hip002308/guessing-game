@@ -8,6 +8,7 @@
 #define ANSWER_MIN (1)
 #define ANSWER_MAX (100)
 #define DIGITS_MAX (3)
+// 符号(1) + 桁数 + ヌル文字(1)
 #define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
 
 // 残りの入力バッファを読み飛ばす
@@ -19,7 +20,7 @@ void ThroughRestBuffer() {
 }
 
 // 0を返せば整数値、それ以外は文字列とみなす
-int isString(char str[]) {
+int isDigits(char str[]) {
   int idx;
   int str_length = (int)strlen(str);
   int char_count = 0;
@@ -40,27 +41,24 @@ int isString(char str[]) {
 // 答えの入力を求める
 int AnswerByPlayer() {
   char answer_input[INPUT_ARRAY_SIZE];
-  int player_answer;
+  int player_answer = ANSWER_MIN - 1;
 
   do {
     printf("%dから%dまでの整数を入力してください：", ANSWER_MIN, ANSWER_MAX);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
-    // 配列要素数を超える入力か、数字以外の入力がされた場合
-    if (isString(answer_input)) {
-      player_answer = ANSWER_MIN - 1;
-      continue;
+    if (isDigits(answer_input)) {
+      player_answer = atoi(answer_input);
     }
-    player_answer = atoi(answer_input);
   } while ((player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
 
   return player_answer;
 }
 
-// 誤差の符号に応じたJUDGE列挙型を返す
+// 判定メッセージを表示する
 void PrintJudgeMessage(int diff) {
-  static const char* judge_messages[] = {
+  static char const * const judge_messages[] = {
     "Small",
     "Bingo!",
     "Big"
