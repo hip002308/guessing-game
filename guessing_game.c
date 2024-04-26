@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
+#include <ctype.h>
 
-// 正解値の最小値・最大値
+// 正解値の最小値・最大値・最大桁数、配列の桁数
 #define ANSWER_MIN (1)
 #define ANSWER_MAX (100)
+#define DIGITS_MAX (3)
+#define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
 
 // 残りの入力バッファを読み飛ばす
 void ThroughRestBuffer() {
@@ -14,36 +18,56 @@ void ThroughRestBuffer() {
   }
 }
 
-// 数字の文字列を数値にして返す(先頭が文字列の場合、ANSWER_MIN - 1を返す)
-int AtoiWithinRange(char str[]) {
-  int ret = atoi(str);
-  if (ret == 0 && str[0] != '0') {
-    ret = ANSWER_MIN - 1;
+// 0を返せば整数値、それ以外は文字列とみなす
+int isString(char str[]) {
+  int idx;
+  int str_length = (int)strlen(str);
+  int char_count = 0;
+
+  for (idx = 0; idx < str_length; idx++) {
+    if (!isdigit(str[idx])) {
+      char_count++;
+    }
   }
-  return ret;
+  // 先頭が符号なら整数の可能性、ヌル文字なら文字列
+  if ((str[0] == '-') || (str[0] == '+') || (!str[0])) {
+    char_count--;
+  }
+
+  return char_count;
 }
 
 // 答えの入力を求める
 int AnswerByPlayer() {
-  char answer_input[10] = {'\0'};
+  char answer_input[INPUT_ARRAY_SIZE];
   int player_answer;
-  while (1) {
-    printf("%dから%dまでの数字を入力してください：", ANSWER_MIN, ANSWER_MAX);
+
+  do {
+    printf("%dから%dまでの整数を入力してください：", ANSWER_MIN, ANSWER_MAX);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
-    scanf_s("%9s", answer_input, (unsigned) _countof(answer_input));
+    scanf_s("%s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
-    player_answer = AtoiWithinRange(answer_input);
-    if ((player_answer >= ANSWER_MIN) && (player_answer <= ANSWER_MAX)) {
-      break;
+    // 配列要素数を超える入力か、数字以外の入力がされた場合
+    if (isString(answer_input)) {
+      player_answer = ANSWER_MIN - 1;
+      continue;
     }
-    printf("\a【注意】%d以上%d以下の数字を入力してください。\n\n", ANSWER_MIN, ANSWER_MAX);
-  }
+    player_answer = atoi(answer_input);
+  } while ((player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
+
   return player_answer;
 }
 
-// 答えを生成する
-int GenerateAnswer() {
-  return (rand() % (ANSWER_MAX - ANSWER_MIN + 1)) + ANSWER_MIN;
+// 誤差の符号に応じたJUDGE列挙型を返す
+void PrintJudgeMessage(int diff) {
+  static const char* judge_messages[] = {
+    "Small",
+    "Bingo!",
+    "Big"
+  };
+  // 符号(-1 or 0 or +1)と配列の要素を対応付ける
+  int idx = (diff > 0) - (diff < 0) + 1;
+  printf("%s", judge_messages[idx]);
 }
 
 int main(void) {
@@ -53,33 +77,27 @@ int main(void) {
   int correct_answer;
   // プレイヤーの解答回数
   int answer_count = 0;
+  // プレイヤー解答と正解との誤差
+  int answer_diff;
 
   // 正解の数値を生成
-  srand((unsigned) time(NULL));
-  correct_answer = GenerateAnswer();
+  srand((unsigned)time(NULL));
+  correct_answer = (rand() % (ANSWER_MAX - ANSWER_MIN + 1)) + ANSWER_MIN;
 
   printf("数当てゲームです。\n");
-  while (1) {
+  do {
     // プレイヤー入力
     player_answer = AnswerByPlayer();
     answer_count++;
-    printf("あなたの解答\"%d\"は", player_answer);
 
-    // 正誤判定・表示
+    // 正誤表示
+    answer_diff = player_answer - correct_answer;
     printf("あなたの解答\"%d\"は", player_answer);
-    if (player_answer > correct_answer) {
-      printf("Big\n");
-    }
-    else if (player_answer < correct_answer) {
-      printf("Small\n");
-    }
-    else {
-      printf("Bingo!\n");
-      printf("あなたは%d回目で正解しました。\n", answer_count);
-      break;
-    }
-    printf("\n");
-  }
+    PrintJudgeMessage(answer_diff);
+    printf("\n\n");
+  } while (answer_diff);
+
+  printf("あなたは%d回目で正解しました。\n", answer_count);
 
   return 0;
 }
