@@ -13,9 +13,9 @@
 // ˆø”‚ð•¶Žš—ñ‚É‚µ‚Ä‚»‚ÌŒ…”‚ð•Ô‚·
 #define COUNT_DIGITS(x) (_countof(STRING(x)))
 // Œ…”‚Ì‘½‚¢•û‚ð•Ô‚·
-#define DIGITS_MAX (((-ANSWER_MIN) < ANSWER_MAX) ? (COUNT_DIGITS(ANSWER_MAX)) : (COUNT_DIGITS(ANSWER_MIN)))
-// Œ…”(DIGIT_MAX) + •„†(1) - Š‡ŒÊ(2)
-#define INPUT_ARRAY_SIZE (DIGITS_MAX - 1)
+#define DIGITS_MAX ((((-ANSWER_MIN) < ANSWER_MAX) ? (COUNT_DIGITS(ANSWER_MAX)) : (COUNT_DIGITS(ANSWER_MIN))) - 2)
+// Œ…”(DIGIT_MAX) + •„†(1)
+#define INPUT_ARRAY_SIZE (DIGITS_MAX + 1)
 // ®”‚©”Û‚©‚ð•\‚·
 #define DIGIT (1)
 #define NOT_DIGIT (0)
