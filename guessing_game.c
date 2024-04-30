@@ -9,9 +9,9 @@
 #define ANSWER_MIN (1)
 #define ANSWER_MAX (100)
 // COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
-#define STRING(s) (#s)
+#define STRING(str) (#str)
 // 引数を文字列にしてその桁数を返す
-#define COUNT_DIGITS(x) (_countof(STRING(x)))
+#define COUNT_DIGITS(value) (_countof(STRING(value)))
 // 桁数の多い方を返す
 #define DIGITS_MAX ((((-ANSWER_MIN) < ANSWER_MAX) ? COUNT_DIGITS(ANSWER_MAX) : (COUNT_DIGITS(ANSWER_MIN) - 1)) - 2)
 // 桁数(DIGIT_MAX) + 符号(1)
