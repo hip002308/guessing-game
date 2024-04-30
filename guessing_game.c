@@ -8,9 +8,13 @@
 // 正解値の最小値・最大値・最大桁数、配列の桁数
 #define ANSWER_MIN (1)
 #define ANSWER_MAX (100)
-#define DIGITS_MAX (3)
-// 符号(1) + 桁数 + ヌル文字(1)
-#define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
+#define STR(s) (#s)
+// 引数のマクロを先に数値に置き換えるためにマクロをかませる
+#define COUNT_DIGITS(x) (_countof(STR(x)))
+// 桁数の多い方を返す
+#define DIGITS_MAX (((-ANSWER_MIN) < ANSWER_MAX) ? (COUNT_DIGITS(ANSWER_MAX)) : (COUNT_DIGITS(ANSWER_MIN)))
+// 桁数(DIGIT_MAX) + 符号(1) - 括弧(2)
+#define INPUT_ARRAY_SIZE (DIGITS_MAX - 1)
 // 整数か否かを表す
 #define IS_DIGIT (1)
 #define NOT_DIGIT (0)
@@ -34,8 +38,8 @@ int isDigits(char str[]) {
       char_count++;
     }
   }
-  // 先頭が符号なら整数の可能性、ヌル文字なら文字列
-  if ((str[0] == '-') || (str[0] == '+') || (!str[0])) {
+  // 長さが0ならば整数でない、先頭が符号なら整数の可能性
+  if ((str_length == 0) || (str[0] == '-') || (str[0] == '+')) {
     char_count--;
   }
 
