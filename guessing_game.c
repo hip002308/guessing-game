@@ -18,7 +18,7 @@
 #define INPUT_ARRAY_SIZE (DIGITS_MAX - 1)
 // 整数か否かを表す
 #define IS_DIGIT (1)
-#define NOT_DIGIT (0)
+#define IS_NOT_DIGIT (0)
 
 // 残りの入力バッファを読み飛ばす
 void ThroughRestBuffer() {
@@ -45,7 +45,7 @@ int isDigits(char str[]) {
   }
 
   if (char_count) {
-    return NOT_DIGIT;
+    return IS_NOT_DIGIT;
   }
   return IS_DIGIT;
 }
@@ -64,7 +64,7 @@ int AnswerByPlayer() {
     ThroughRestBuffer();
     player_answer = atoi(answer_input);
     // 整数でないか、整数かつ範囲外の数値であれば true
-  } while ((isDigits(answer_input) == NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
+  } while ((isDigits(answer_input) == IS_NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
 
   return player_answer;
 }
