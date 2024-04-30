@@ -11,11 +11,11 @@
 // COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
 #define STRING(str) (#str)
 // 引数を文字列にしてその桁数を返す
-#define COUNT_DIGITS(value) (_countof(STRING(value)))
+#define COUNT_DIGITS(value) (_countof(STRING(value)) - 1)
 // 桁数の多い方を返す
 #define DIGITS_MAX ((((-ANSWER_MIN) < ANSWER_MAX) ? COUNT_DIGITS(ANSWER_MAX) : (COUNT_DIGITS(ANSWER_MIN) - 1)) - 2)
-// 桁数(DIGIT_MAX) + 符号(1)
-#define INPUT_ARRAY_SIZE (DIGITS_MAX + 1)
+// 桁数(DIGIT_MAX) + 符号(1) + ヌル文字(1)
+#define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
 // 整数か否かを表す
 #define DIGIT (1)
 #define NOT_DIGIT (0)
