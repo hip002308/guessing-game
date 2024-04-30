@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <time.h>
-#include <ctype.h>
+#include <wctype.h>
 
 // 正解値の最小値・最大値・最大桁数、配列の桁数
 #define ANSWER_MIN (1)
@@ -10,6 +11,9 @@
 #define DIGITS_MAX (3)
 // 符号(1) + 桁数 + ヌル文字(1)
 #define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
+// 整数か否かを表す
+#define IS_DIGIT (1)
+#define NOT_DIGIT (0)
 
 // 残りの入力バッファを読み飛ばす
 void ThroughRestBuffer() {
@@ -19,14 +23,14 @@ void ThroughRestBuffer() {
   }
 }
 
-// 0を返せば整数値、それ以外は文字列とみなす
+// 整数値ならIS_DIGIT、それ以外はNOT_DIGITを返す
 int isDigits(char str[]) {
   int idx;
   int str_length = (int)strlen(str);
   int char_count = 0;
 
   for (idx = 0; idx < str_length; idx++) {
-    if (!isdigit(str[idx])) {
+    if (!iswdigit(str[idx])) {
       char_count++;
     }
   }
@@ -35,12 +39,18 @@ int isDigits(char str[]) {
     char_count--;
   }
 
-  return char_count;
+  if (char_count) {
+    return NOT_DIGIT;
+  }
+
+  return IS_DIGIT;
 }
 
 // 答えの入力を求める
 int AnswerByPlayer() {
-  char answer_input[INPUT_ARRAY_SIZE];
+  char answer_input[INPUT_ARRAY_SIZE] = {
+    '\0'
+  };
   int player_answer = ANSWER_MIN - 1;
 
   do {
@@ -48,10 +58,9 @@ int AnswerByPlayer() {
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
-    if (isDigits(answer_input)) {
-      player_answer = atoi(answer_input);
-    }
-  } while ((player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
+    player_answer = atoi(answer_input);
+    // 整数でないか、整数かつ範囲外の数値であれば true
+  } while ((isDigits(answer_input) == NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
 
   return player_answer;
 }
@@ -93,7 +102,7 @@ int main(void) {
     printf("あなたの解答\"%d\"は", player_answer);
     PrintJudgeMessage(answer_diff);
     printf("\n\n");
-  } while (answer_diff);
+  } while (player_answer != correct_answer);
 
   printf("あなたは%d回目で正解しました。\n", answer_count);
 
