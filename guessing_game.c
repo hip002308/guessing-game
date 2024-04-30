@@ -56,6 +56,7 @@ int AnswerByPlayer() {
     '\0'
   };
   int player_answer = ANSWER_MIN - 1;
+  int is_digit;
 
   do {
     printf("%dから%dまでの整数を入力してください：", ANSWER_MIN, ANSWER_MAX);
@@ -63,8 +64,9 @@ int AnswerByPlayer() {
     scanf_s("%s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
     player_answer = atoi(answer_input);
+    is_digit = isDigits(answer_input);
     // 整数でないか、整数かつ範囲外の数値であれば true
-  } while ((isDigits(answer_input) == NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
+  } while ((is_digit == NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
 
   return player_answer;
 }
