@@ -5,12 +5,13 @@
 #include <time.h>
 #include <wctype.h>
 
-// 正解値の最小値・最大値・最大桁数、配列の桁数
+// 正解値の最小値・最大値
 #define ANSWER_MIN (1)
 #define ANSWER_MAX (100)
-#define STR(s) (#s)
-// 引数のマクロを先に数値に置き換えるためにマクロをかませる
-#define COUNT_DIGITS(x) (_countof(STR(x)))
+// COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
+#define STRING(s) (#s)
+// 引数を文字列にしてその桁数を返す
+#define COUNT_DIGITS(x) (_countof(STRING(x)))
 // 桁数の多い方を返す
 #define DIGITS_MAX (((-ANSWER_MIN) < ANSWER_MAX) ? (COUNT_DIGITS(ANSWER_MAX)) : (COUNT_DIGITS(ANSWER_MIN)))
 // 桁数(DIGIT_MAX) + 符号(1) - 括弧(2)
@@ -46,13 +47,12 @@ int isDigits(char str[]) {
   if (char_count) {
     return NOT_DIGIT;
   }
-
   return IS_DIGIT;
 }
 
 // 答えの入力を求める
 int AnswerByPlayer() {
-  char answer_input[INPUT_ARRAY_SIZE] = {
+  static char answer_input[INPUT_ARRAY_SIZE] = {
     '\0'
   };
   int player_answer = ANSWER_MIN - 1;
@@ -88,8 +88,6 @@ int main(void) {
   int correct_answer;
   // プレイヤーの解答回数
   int answer_count = 0;
-  // プレイヤー解答と正解との誤差
-  int answer_diff;
 
   // 正解の数値を生成
   srand((unsigned)time(NULL));
@@ -102,7 +100,7 @@ int main(void) {
     answer_count++;
 
     // 正誤表示
-    answer_diff = player_answer - correct_answer;
+    int answer_diff = player_answer - correct_answer;
     printf("あなたの解答\"%d\"は", player_answer);
     PrintJudgeMessage(answer_diff);
     printf("\n\n");
