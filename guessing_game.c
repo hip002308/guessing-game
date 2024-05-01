@@ -143,7 +143,7 @@ int CharTo10Base(char str[]) {
 // INPUT_BASEi”‚ğ10i”‚É‚µ‚Ä•Ô‚·
 int IntTo10Base(int value_n_base) {
   char str_n_base[INPUT_ARRAY_SIZE];
-  sprintf_s(str_n_base, INPUT_ARRAY_SIZE - 1, "%d", value_n_base);
+  _snprintf_s(str_n_base, INPUT_ARRAY_SIZE, INPUT_ARRAY_SIZE - 1, "%d", value_n_base);
   int value_10 = CharTo10Base(str_n_base);
   return value_10;
 }
