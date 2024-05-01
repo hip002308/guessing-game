@@ -5,11 +5,11 @@
 #include <time.h>
 #include <wctype.h>
 
+// 入力は何進数か
+#define INPUT_BASE (2)
 // 正解値の最小値・最大値
 #define ANSWER_MIN (0)
-#define ANSWER_MAX (100)
-// 入力は何進数か
-#define INPUT_BASE (10)
+#define ANSWER_MAX (11111111)
 // COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
 #define STRING(str) (#str)
 // 引数を文字列にしてその桁数を返す
@@ -18,6 +18,8 @@
 #define DIGITS_MAX ((((-ANSWER_MIN) < ANSWER_MAX) ? COUNT_DIGITS(ANSWER_MAX) : (COUNT_DIGITS(ANSWER_MIN) - 1)) - 2)
 // 桁数(DIGIT_MAX) + 符号(1) + ヌル文字(1)
 #define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
+// 文字を数値にする
+#define CTOI(character) (character - '0')
 // 整数か否かを表す
 #define DIGIT (1)
 #define NOT_DIGIT (0)
@@ -70,7 +72,16 @@ int isDigits(char str[]) {
 
 // INPUT_BASE進数に適合した文字列かどうか
 int isCorrectBase(char str[]) {
-  // 処理を記述
+  int index;
+  int str_length = (int)strlen(str);
+
+  for (index = 0; index < str_length; index++) {
+    int value = CTOI(str[index]);
+    if (INPUT_BASE <= value) {
+      return INCORRECT_BASE;
+    }
+  }
+
   return CORRECT_BASE;
 }
 
@@ -87,28 +98,6 @@ int isAppropriateInput(char str[]) {
   return APPROPRIATE_INPUT;
 }
 
-// INPUT_BASE進数の文字列を10進数にして返す
-int CharTo10Base(char str[]) {
-  int index;
-  int str_length = (int)strlen(str);
-  int value_10 = 0;
-
-  for (index = 0; index < str_length; index++) {
-    value_10 *= INPUT_BASE;
-    value_10 += str[index] - '0';
-  }
-
-  return value_10;
-}
-
-// INPUT_BASE進数を10進数にして返す
-int IntTo10Base(int value_n_base) {
-  char str_n_base[INPUT_ARRAY_SIZE];
-  sprintf_s(str_n_base, INPUT_ARRAY_SIZE - 1, "%d", value_n_base);
-  int value_10 = CharTo10Base(str_n_base);
-  return value_10;
-}
-
 // 答えの入力を求める
 void AnswerByPlayer(GAME_INFO* info) {
   info->player_answer = ANSWER_MIN - 1;
@@ -121,7 +110,7 @@ void AnswerByPlayer(GAME_INFO* info) {
     ThroughRestBuffer();
     info->player_answer = atoi(info->player_input);
     is_appropriate = isAppropriateInput(info->player_input);
-    // 入力が適切でないか、適切かつ範囲外の数値であれば ループ続行
+    // 入力が適切でないか、適切かつ範囲外の数値(どんな進数でも10進数で評価)であれば ループ続行
   } while ((is_appropriate == INAPPROPRIATE_INPUT) || (info->player_answer < ANSWER_MIN) || (info->player_answer > ANSWER_MAX));
 }
 
@@ -135,6 +124,28 @@ void PrintJudgeMessage(int diff) {
   // 符号(-1 or 0 or +1)と配列の要素を対応付ける
   int index = (diff > 0) - (diff < 0) + 1;
   printf("%s", judge_messages[index]);
+}
+
+// INPUT_BASE進数の文字列を10進数にして返す
+int CharTo10Base(char str[]) {
+  int index;
+  int str_length = (int)strlen(str);
+  int value_10 = 0;
+
+  for (index = 0; index < str_length; index++) {
+    value_10 *= INPUT_BASE;
+    value_10 += CTOI(str[index]);
+  }
+
+  return value_10;
+}
+
+// INPUT_BASE進数を10進数にして返す
+int IntTo10Base(int value_n_base) {
+  char str_n_base[INPUT_ARRAY_SIZE];
+  sprintf_s(str_n_base, INPUT_ARRAY_SIZE - 1, "%d", value_n_base);
+  int value_10 = CharTo10Base(str_n_base);
+  return value_10;
 }
 
 int main(void) {
