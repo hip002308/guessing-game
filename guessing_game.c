@@ -6,8 +6,10 @@
 #include <wctype.h>
 
 // 正解値の最小値・最大値
-#define ANSWER_MIN (1)
+#define ANSWER_MIN (0)
 #define ANSWER_MAX (100)
+// 何進数か
+#define BASE (10)
 // COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
 #define STRING(str) (#str)
 // 引数を文字列にしてその桁数を返す
@@ -19,6 +21,12 @@
 // 整数か否かを表す
 #define DIGIT (1)
 #define NOT_DIGIT (0)
+// BASE進数か否かを表す
+#define CORRECT_BASE (1)
+#define INCORRECT_BASE (0)
+// プレイヤーの入力が正しいか否かを表す
+#define APPROPRIATE_INPUT (1)
+#define INAPPROPRIATE_INPUT (0)
 
 // 残りの入力バッファを読み飛ばす
 void ThroughRestBuffer() {
@@ -50,23 +58,41 @@ int isDigits(char str[]) {
   return DIGIT;
 }
 
+// BASE進数に適合した文字列かどうか
+int isCorrectBase(char str[]) {
+  return CORRECT_BASE;
+}
+
+// 入力が指示通り行われているか
+int isAppropriateInput(char str[]) {
+  int is_digit = isDigits(str);
+  if (is_digit == NOT_DIGIT) {
+    return INAPPROPRIATE_INPUT;
+  }
+  int is_correct_base = isCorrectBase(str);
+  if (is_correct_base == INCORRECT_BASE) {
+    return INAPPROPRIATE_INPUT;
+  }
+  return APPROPRIATE_INPUT;
+}
+
 // 答えの入力を求める
 int AnswerByPlayer() {
   char answer_input[INPUT_ARRAY_SIZE] = {
     '\0'
   };
   int player_answer = ANSWER_MIN - 1;
-  int is_digit;
+  int is_appropriate;
 
   do {
-    printf("%dから%dまでの整数を入力してください：", ANSWER_MIN, ANSWER_MAX);
+    printf("%dから%dまでの整数を%d進数で入力してください：", ANSWER_MIN, ANSWER_MAX, BASE);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%s", answer_input, (unsigned)_countof(answer_input));
     ThroughRestBuffer();
     player_answer = atoi(answer_input);
-    is_digit = isDigits(answer_input);
-    // 整数でないか、整数かつ範囲外の数値であれば true
-  } while ((is_digit == NOT_DIGIT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
+    is_appropriate = isAppropriateInput(answer_input);
+    // 入力が適切でないか、適切かつ範囲外の数値であれば ループ続行
+  } while ((is_appropriate == INAPPROPRIATE_INPUT) || (player_answer < ANSWER_MIN) || (player_answer > ANSWER_MAX));
 
   return player_answer;
 }
@@ -81,6 +107,20 @@ void PrintJudgeMessage(int diff) {
   // 符号(-1 or 0 or +1)と配列の要素を対応付ける
   int idx = (diff > 0) - (diff < 0) + 1;
   printf("%s", judge_messages[idx]);
+}
+
+// 文字列を10進数にして返す
+int Convert10Base(char str[]) {
+  int idx;
+  int str_length = (int)strlen(str);
+  int value_10 = 0;
+
+  for (idx = 0; idx < str_length; idx++) {
+    value_10 *= BASE;
+    value_10 += (int)str[idx];
+  }
+
+  return value_10;
 }
 
 int main(void) {
