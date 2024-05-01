@@ -52,7 +52,7 @@ int isDigits(char str[]) {
 
 // “š‚¦‚Ì“ü—Í‚ğ‹‚ß‚é
 int AnswerByPlayer() {
-  static char answer_input[INPUT_ARRAY_SIZE] = {
+  char answer_input[INPUT_ARRAY_SIZE] = {
     '\0'
   };
   int player_answer = ANSWER_MIN - 1;
