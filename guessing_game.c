@@ -65,11 +65,19 @@ int CharToInt(char character) {
 int CharTo10Base(char str[]) {
   int index;
   int str_length = (int)strlen(str);
-  int value_10 = 0;
+  // •„†‚ª‚ ‚é‚©‚ğ“Ç‚Ş
+  int value_10 = CharToInt(str[0]);
+  if (value_10 == NOT_DIGIT) {
+    value_10 = 0;
+  }
 
-  for (index = 0; index < str_length; index++) {
+  for (index = 1; index < str_length; index++) {
     value_10 *= INPUT_BASE;
     value_10 += CharToInt(str[index]);
+  }
+
+  if (str[0] == '-') {
+    value_10 = -value_10;
   }
 
   return value_10;
