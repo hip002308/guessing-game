@@ -28,10 +28,10 @@
 
 // ゲーム情報を格納する
 typedef struct {
-  // プレイヤーの入力
-  char player_input[INPUT_ARRAY_SIZE];
-  // プレイヤーの解答
-  int player_answer;
+  // 正解値の最小値
+  int answer_min;
+  // 正解値の最大値
+  int answer_max;
   // ゲームの正解
   int correct_answer;
 } GAME_INFO;
@@ -127,20 +127,23 @@ int isAppropriateInput(char str[]) {
 }
 
 // 答えの入力を求める
-void AnswerByPlayer(GAME_INFO* info) {
-  const int answer_max = CharTo10Base(ANSWER_MAX);
-  const int answer_min = CharTo10Base(ANSWER_MIN);
+int AnswerByPlayer(GAME_INFO const * const info) {
+  char player_input[INPUT_ARRAY_SIZE];
+  int player_answer;
   int is_appropriate;
 
   do {
-    printf("%sから%sまでの整数を%d進数で入力してください：", ANSWER_MIN, ANSWER_MAX, INPUT_BASE);
+    printf("%dから%dまでの整数を%d進数で入力してください：", info->answer_min, info->answer_max, INPUT_BASE);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
-    scanf_s("%s", info->player_input, (unsigned)_countof(info->player_input));
+    scanf_s("%s", player_input, (unsigned)_countof(player_input));
     ThroughRestBuffer();
-    info->player_answer = CharTo10Base(info->player_input);
-    is_appropriate = isAppropriateInput(info->player_input);
+    player_answer = CharTo10Base(player_input);
+    is_appropriate = isAppropriateInput(player_input);
     // 入力が適切でないか、適切かつ範囲外の数値であれば ループ続行
-  } while ((is_appropriate == INAPPROPRIATE_INPUT) || (info->player_answer < answer_min) || (info->player_answer > answer_max));
+  } while ((is_appropriate == INAPPROPRIATE_INPUT) || (player_answer < info->answer_min) || (player_answer > info->answer_max));
+
+  printf("あなたの解答\"%s\"：", player_input);
+  return player_answer;
 }
 
 // 判定メッセージを表示する
@@ -156,33 +159,34 @@ void PrintJudgeMessage(int diff) {
 }
 
 int main(void) {
-  // ゲーム情報
-  GAME_INFO info = {
-    '\0'
-  };
+  // プレイヤーの解答
+  int player_answer;
   // プレイヤーの解答回数
   int answer_count = 0;
-  // 正解値の最大値・最小値
-  const int answer_max = CharTo10Base(ANSWER_MAX);
-  const int answer_min = CharTo10Base(ANSWER_MIN);
+  // 正解値の最小値・最大値
+  int const answer_min = CharTo10Base(ANSWER_MIN);
+  int const answer_max = CharTo10Base(ANSWER_MAX);
 
   // 正解の数値を生成
   srand((unsigned)time(NULL));
-  info.correct_answer = (rand() % (answer_max - answer_min + 1)) + answer_min;
+  // ゲーム情報を格納
+  GAME_INFO const info = {
+    answer_min,
+    answer_max,
+    (rand() % (answer_max - answer_min + 1)) + answer_min
+  };
 
   printf("数当てゲームです。\n");
   do {
     // プレイヤー入力
-    AnswerByPlayer(&info);
-    info.player_answer = CharTo10Base(info.player_input);
+    player_answer = AnswerByPlayer(&info);
     answer_count++;
 
     // 正誤表示
-    int answer_diff = info.player_answer - info.correct_answer;
-    printf("あなたの解答\"%s\"は", info.player_input);
+    int answer_diff = player_answer - info.correct_answer;
     PrintJudgeMessage(answer_diff);
     printf("\n\n");
-  } while (info.player_answer != info.correct_answer);
+  } while (player_answer != info.correct_answer);
 
   printf("あなたは%d回目で正解しました。\n", answer_count);
 
