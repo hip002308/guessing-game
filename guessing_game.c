@@ -47,11 +47,7 @@ void ThroughRestBuffer() {
 // 文字(0~9a~zA~Z)を数値(0~35)に変換、それ以外はNOT_DIGITを返す
 int CharToInt(char character) {
   static char alpha[] = "0123456789abcdefghijklmnopqrstuvwxyz";
-  char search[] = {
-    (char)towlower(character),
-    '\0'
-  };
-  char* pointer = strstr(alpha, search);
+  char* pointer = strchr(alpha, (int)character);
   if (pointer == NULL) {
     return NOT_DIGIT;
   }
@@ -145,8 +141,8 @@ int AnswerByPlayer(GAME_INFO const * const info) {
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%s", player_input, (unsigned)_countof(player_input));
     ThroughRestBuffer();
-    player_answer = CharTo10Base(player_input);
     is_appropriate = isAppropriateInput(player_input);
+    player_answer = CharTo10Base(player_input);
     // 入力が適切でないか、適切かつ範囲外の数値であれば ループ続行
   } while ((is_appropriate == INAPPROPRIATE_INPUT) || (player_answer < info->answer_min) || (player_answer > info->answer_max));
 
