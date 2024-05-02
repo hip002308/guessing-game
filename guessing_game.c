@@ -7,7 +7,7 @@
 
 // 入力は何進数か
 #define INPUT_BASE (2)
-// 正解値の最小値・最大値
+// 正解値の最小値・最大値をINPUT_BASE進数で表記する
 #define ANSWER_MIN ("0")
 #define ANSWER_MAX ("11111111")
 // 引数の桁数(符号も含む場合がある)を返す
@@ -44,7 +44,7 @@ void ThroughRestBuffer() {
   }
 }
 
-// 文字(0~9a~zA~Z)を数値(0~35)に変換
+// 文字(0~9a~zA~Z)を数値(0~35)に変換、それ以外はNOT_DIGITを返す
 int CharToInt(char character) {
   static char alpha[] = "0123456789abcdefghijklmnopqrstuvwxyz";
   char search[] = {
@@ -59,28 +59,6 @@ int CharToInt(char character) {
     int value = (int)(pointer - alpha);
     return value;
   }
-}
-
-// INPUT_BASE進数の文字列を10進数にして返す
-int CharTo10Base(char str[]) {
-  int index;
-  int str_length = (int)strlen(str);
-  // 符号があるかを読む
-  int value_10 = CharToInt(str[0]);
-  if (value_10 == NOT_DIGIT) {
-    value_10 = 0;
-  }
-
-  for (index = 1; index < str_length; index++) {
-    value_10 *= INPUT_BASE;
-    value_10 += CharToInt(str[index]);
-  }
-
-  if (str[0] == '-') {
-    value_10 = -value_10;
-  }
-
-  return value_10;
 }
 
 // 整数値ならDIGIT、それ以外はNOT_DIGITを返す
@@ -132,6 +110,28 @@ int isAppropriateInput(char str[]) {
     return INAPPROPRIATE_INPUT;
   }
   return APPROPRIATE_INPUT;
+}
+
+// 文字列をINPUT_BASE進数として10進数に変換して返す
+int CharTo10Base(char str[]) {
+  int index;
+  int str_length = (int)strlen(str);
+  // 符号があるかを読む
+  int value_10 = CharToInt(str[0]);
+  if (value_10 == NOT_DIGIT) {
+    value_10 = 0;
+  }
+
+  for (index = 1; index < str_length; index++) {
+    value_10 *= INPUT_BASE;
+    value_10 += CharToInt(str[index]);
+  }
+
+  if (str[0] == '-') {
+    value_10 = -value_10;
+  }
+
+  return value_10;
 }
 
 // 答えの入力を求める
