@@ -8,21 +8,17 @@
 // 入力は何進数か
 #define INPUT_BASE (2)
 // 正解値の最小値・最大値
-#define ANSWER_MIN (0)
-#define ANSWER_MAX (11111111)
-// COUNT_DIGITSマクロの引数を先に数値に置き換えるためにSTRINGマクロをかませる
-#define STRING(str) (#str)
-// 引数を文字列にしてその桁数を返す
-#define COUNT_DIGITS(value) (_countof(STRING(value)) - 1)
+#define ANSWER_MIN ("0")
+#define ANSWER_MAX ("11111111")
+// 引数の桁数(符号も含む場合がある)を返す
+#define COUNT_DIGITS(val_str) (_countof(val_str) - 1)
 // 桁数の多い方を返す
-#define DIGITS_MAX ((((-ANSWER_MIN) < ANSWER_MAX) ? COUNT_DIGITS(ANSWER_MAX) : (COUNT_DIGITS(ANSWER_MIN) - 1)) - 2)
+#define DIGITS_MAX ((COUNT_DIGITS(ANSWER_MIN) < COUNT_DIGITS(ANSWER_MAX)) ? COUNT_DIGITS(ANSWER_MAX) : COUNT_DIGITS(ANSWER_MIN))
 // 桁数(DIGIT_MAX) + 符号(1) + ヌル文字(1)
 #define INPUT_ARRAY_SIZE (DIGITS_MAX + 2)
-// 文字を数値にする
-#define CTOI(character) (character - '0')
 // 整数か否かを表す
 #define DIGIT (1)
-#define NOT_DIGIT (0)
+#define NOT_DIGIT (-1)
 // INPUT_BASE進数か否かを表す
 #define CORRECT_BASE (1)
 #define INCORRECT_BASE (0)
@@ -48,6 +44,37 @@ void ThroughRestBuffer() {
   }
 }
 
+// 文字(0~9a~zA~Z)を数値(0~35)に変換
+int CharToInt(char character) {
+  static char alpha[] = "0123456789abcdefghijklmnopqrstuvwxyz";
+  char search[] = {
+    (char)towlower(character),
+    '\0'
+  };
+  char* pointer = strstr(alpha, search);
+  if (pointer == NULL) {
+    return NOT_DIGIT;
+  }
+  else {
+    int value = (int)(pointer - alpha);
+    return value;
+  }
+}
+
+// INPUT_BASE進数の文字列を10進数にして返す
+int CharTo10Base(char str[]) {
+  int index;
+  int str_length = (int)strlen(str);
+  int value_10 = 0;
+
+  for (index = 0; index < str_length; index++) {
+    value_10 *= INPUT_BASE;
+    value_10 += CharToInt(str[index]);
+  }
+
+  return value_10;
+}
+
 // 整数値ならDIGIT、それ以外はNOT_DIGITを返す
 int isDigits(char str[]) {
   int index;
@@ -55,7 +82,8 @@ int isDigits(char str[]) {
   int char_count = 0;
 
   for (index = 0; index < str_length; index++) {
-    if (!iswdigit(str[index])) {
+    int value = CharToInt(str[index]);
+    if (value == NOT_DIGIT) {
       char_count++;
     }
   }
@@ -76,7 +104,7 @@ int isCorrectBase(char str[]) {
   int str_length = (int)strlen(str);
 
   for (index = 0; index < str_length; index++) {
-    int value = CTOI(str[index]);
+    int value = CharToInt(str[index]);
     if (INPUT_BASE <= value) {
       return INCORRECT_BASE;
     }
@@ -100,18 +128,19 @@ int isAppropriateInput(char str[]) {
 
 // 答えの入力を求める
 void AnswerByPlayer(GAME_INFO* info) {
-  info->player_answer = ANSWER_MIN - 1;
+  const int answer_max = CharTo10Base(ANSWER_MAX);
+  const int answer_min = CharTo10Base(ANSWER_MIN);
   int is_appropriate;
 
   do {
-    printf("%dから%dまでの整数を%d進数で入力してください：", ANSWER_MIN, ANSWER_MAX, INPUT_BASE);
+    printf("%sから%sまでの整数を%d進数で入力してください：", ANSWER_MIN, ANSWER_MAX, INPUT_BASE);
     // 第3引数のバッファサイズに、配列の最大文字数を返す_countofマクロを使用
     scanf_s("%s", info->player_input, (unsigned)_countof(info->player_input));
     ThroughRestBuffer();
-    info->player_answer = atoi(info->player_input);
+    info->player_answer = CharTo10Base(info->player_input);
     is_appropriate = isAppropriateInput(info->player_input);
-    // 入力が適切でないか、適切かつ範囲外の数値(どんな進数でも10進数で評価)であれば ループ続行
-  } while ((is_appropriate == INAPPROPRIATE_INPUT) || (info->player_answer < ANSWER_MIN) || (info->player_answer > ANSWER_MAX));
+    // 入力が適切でないか、適切かつ範囲外の数値であれば ループ続行
+  } while ((is_appropriate == INAPPROPRIATE_INPUT) || (info->player_answer < answer_min) || (info->player_answer > answer_max));
 }
 
 // 判定メッセージを表示する
@@ -126,28 +155,6 @@ void PrintJudgeMessage(int diff) {
   printf("%s", judge_messages[index]);
 }
 
-// INPUT_BASE進数の文字列を10進数にして返す
-int CharTo10Base(char str[]) {
-  int index;
-  int str_length = (int)strlen(str);
-  int value_10 = 0;
-
-  for (index = 0; index < str_length; index++) {
-    value_10 *= INPUT_BASE;
-    value_10 += CTOI(str[index]);
-  }
-
-  return value_10;
-}
-
-// INPUT_BASE進数を10進数にして返す
-int IntTo10Base(int value_n_base) {
-  char str_n_base[INPUT_ARRAY_SIZE];
-  _snprintf_s(str_n_base, INPUT_ARRAY_SIZE, INPUT_ARRAY_SIZE - 1, "%d", value_n_base);
-  int value_10 = CharTo10Base(str_n_base);
-  return value_10;
-}
-
 int main(void) {
   // ゲーム情報
   GAME_INFO info = {
@@ -155,14 +162,13 @@ int main(void) {
   };
   // プレイヤーの解答回数
   int answer_count = 0;
-  // マクロ最大値（INPUT_BASE進数表記）をint型にする
-  int const input_max = IntTo10Base(ANSWER_MAX);
-  // マクロ最小値（INPUT_BASE進数表記）をint型にする
-  int const input_min = IntTo10Base(ANSWER_MIN);
+  // 正解値の最大値・最小値
+  const int answer_max = CharTo10Base(ANSWER_MAX);
+  const int answer_min = CharTo10Base(ANSWER_MIN);
 
   // 正解の数値を生成
   srand((unsigned)time(NULL));
-  info.correct_answer = (rand() % (input_max - input_min + 1)) + input_min;
+  info.correct_answer = (rand() % (answer_max - answer_min + 1)) + answer_min;
 
   printf("数当てゲームです。\n");
   do {
